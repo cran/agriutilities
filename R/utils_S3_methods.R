@@ -366,3 +366,331 @@ plot.checkAgri <- function(x,
   }
   return(g_plot)
 }
+
+
+#' Plot an object of class \code{smaAgri}
+#'
+#' @description Create several plots for an object of class \code{smaAgri}
+#' @aliases plot.smaAgri
+#' @param x An object inheriting from class \code{smaAgri} resulting of
+#' executing the function \code{single_trial_analysis()}
+#' @param type A character string specifiying the type of plot. "summary",
+#' "correlation" or "spatial".
+#' @param ... Further graphical parameters. For future improvements.
+#' @param filter_traits An optional character vector to filter traits.
+#' @param nudge_y_cv Vertical adjustment to nudge labels by when plotting CV
+#' bars. Only works if the argument type is "summary". 3 by default.
+#' @param nudge_y_h2 Vertical adjustment to nudge labels by when plotting h2
+#' bars. Only works if the argument type is "summary". 0.07 by default.
+#' @param horizontal If \code{FALSE}, the default, the labels are plotted
+#' vertically. If \code{TRUE}, the labels are plotted horizontally.
+#' @param theme_size Base font size, given in pts. 15 by default.
+#' @param axis_size Numeric input to define the axis size.
+#' @param text_size Numeric input to define the text size.
+#' @author Johan Aparicio [aut]
+#' @method plot smaAgri
+#' @return A ggplot object.
+#' @importFrom ggpubr ggarrange
+#' @importFrom SpATS plot.SpATS
+#' @export
+#' @examples
+#' \donttest{
+#' library(agridat)
+#' library(agriutilities)
+#' data(besag.met)
+#' dat <- besag.met
+#' results <- check_design_met(
+#'   data = dat,
+#'   genotype = "gen",
+#'   trial = "county",
+#'   traits = c("yield"),
+#'   rep = "rep",
+#'   block = "block",
+#'   col = "col",
+#'   row = "row"
+#' )
+#' out <- single_trial_analysis(results, progress = FALSE)
+#' print(out)
+#' plot(out, type = "summary", horizontal = TRUE)
+#' plot(out, type = "correlation")
+#' plot(out, type = "spatial")
+#' }
+plot.smaAgri <- function(x,
+                         type = c("summary", "correlation", "spatial"),
+                         filter_traits = NULL,
+                         nudge_y_cv = 3,
+                         nudge_y_h2 = 0.07,
+                         horizontal = FALSE,
+                         theme_size = 15,
+                         axis_size = 8,
+                         text_size = 4, ...) {
+  type <- match.arg(type)
+  if (type == "summary") {
+    horizontal <- ifelse(test = isTRUE(horizontal), yes = 0, no = 90)
+
+    tmp_out <- x$resum_fitted_model %>%
+      {
+        if (!is.null(filter_traits)) {
+          filter(.data = ., trait %in% filter_traits)
+        } else {
+          .
+        }
+      } %>%
+      select(-design) %>%
+      tidyr::gather(key = "component", value = "value", -trait, -trial) %>%
+      group_by(trait, component) %>%
+      mutate(
+        max = ifelse(
+          test = value == max(value, na.rm = TRUE),
+          yes = "max",
+          no = ifelse(
+            test = value == min(value, na.rm = TRUE),
+            yes = "min",
+            no = "med"
+          )
+        )
+      ) %>%
+      arrange(desc(value))
+
+    A <- tmp_out %>%
+      filter(component %in% c("CV")) %>%
+      group_by(trial, trait, component) %>%
+      ggplot(
+        aes(
+          x = trial,
+          y = value,
+          fill = max,
+          label = paste0(round(value, 1), "%")
+        )
+      ) +
+      geom_bar(stat = "identity", color = "black", alpha = 0.5) +
+      facet_grid(
+        facets = component ~ trait,
+        scales = "free_y",
+        switch = c("y")
+      ) +
+      theme_minimal(base_size = theme_size) +
+      theme(
+        axis.text.x = element_text(hjust = 1, angle = 90, size = axis_size),
+        axis.text.y = element_text(size = axis_size),
+        legend.position = "none"
+      ) +
+      scale_fill_manual(values = c("red", "grey", "steelblue")) +
+      geom_text(
+        aes(color = max),
+        nudge_y = nudge_y_cv,
+        angle = horizontal,
+        size = text_size
+      ) +
+      scale_color_manual(values = c("darkred", "black", "blue")) +
+      labs(x = "", y = "")
+
+    B <- tmp_out %>%
+      filter(component %in% c("heritability")) %>%
+      group_by(trial, trait, component) %>%
+      mutate(nudge = value + value * 0.15) %>%
+      ggplot(
+        aes(x = trial, y = value, fill = max, label = round(value, 2))
+      ) +
+      geom_bar(stat = "identity", color = "black", alpha = 0.5) +
+      facet_grid(
+        facets = component ~ trait,
+        scales = "free_y",
+        switch = c("y")
+      ) +
+      theme_minimal(base_size = theme_size) +
+      theme(
+        axis.text.x = element_text(hjust = 1, angle = 90, size = axis_size),
+        axis.text.y = element_text(size = axis_size),
+        legend.position = "none"
+      ) +
+      scale_fill_manual(values = c("red", "grey", "steelblue")) +
+      geom_text(
+        aes(color = max),
+        nudge_y = nudge_y_h2,
+        angle = horizontal,
+        size = text_size
+      ) +
+      scale_color_manual(values = c("darkred", "black", "blue")) +
+      labs(x = "", y = "") +
+      ylim(c(NA, 1.2))
+
+    C <- ggarrange(A, B, ncol = 1)
+    return(C)
+  }
+
+  if (type == "correlation") {
+    traits <- x$blues_blups %>%
+      group_by(trait) %>%
+      summarise(n = n_distinct(trial)) %>%
+      {
+        if (!is.null(filter_traits)) {
+          filter(.data = ., trait %in% filter_traits)
+        } else {
+          .
+        }
+      } %>%
+      filter(n > 1) %>%
+      pull(trait)
+
+    s <- list()
+    for (i in traits) {
+      tmp <- x$blues_blups %>%
+        filter(trait %in% i) %>%
+        droplevels() %>%
+        select(genotype, trial, BLUPs) %>%
+        spread(trial, BLUPs) %>%
+        select(-genotype)
+      h2 <- x$resum_fitted_model %>%
+        filter(trait %in% i) %>%
+        droplevels() %>%
+        pull(heritability, name = trial)
+
+      s[[i]] <- gg_cor(
+        data = tmp,
+        colours = c("#db4437", "white", "#4285f4"),
+        Diag = h2,
+        label_size = text_size
+      ) +
+        ggtitle(i)
+    }
+    C <- ggarrange(plotlist = s)
+    return(C)
+  }
+
+  if (type == "spatial") {
+    vars <- x$resum_fitted_model %>%
+      filter(design %in% c("row_col", "res_row_col")) %>%
+      {
+        if (!is.null(filter_traits)) {
+          filter(.data = ., trait %in% filter_traits)
+        } else {
+          .
+        }
+      } %>%
+      droplevels() %>%
+      pull(trait) %>%
+      unique()
+    if (length(vars) == 0) {
+      stop("There are no trials with an Spatial Model.")
+    }
+    for (i in vars) {
+      trials <- x$resum_fitted_model %>%
+        filter(trait %in% i & design %in% c("row_col", "res_row_col")) %>%
+        droplevels() %>%
+        pull(trial) %>%
+        unique()
+      if (length(trials) >= 1) {
+        for (j in trials) {
+          m_plot <- x$fitted_models[[i]][[j]]$mRand[[i]]
+          plot.SpATS(m_plot, main = paste0("Trait: ", i, " - Trial: ", j))
+        }
+      }
+    }
+  }
+}
+
+
+#' Plot an object of class \code{metAgri}
+#'
+#' @description Create several plots for an object of class \code{metAgri}
+#' @aliases plot.metAgri
+#' @param x An object inheriting from class \code{metAgri} resulting of
+#' executing the function \code{met_analysis()}
+#' @param type A character string specifying the type of plot. "correlation",
+#' "covariance" or "multi_traits"
+#' @param filter_traits An optional character vector to filter traits.
+#' @param text_size Numeric input to define the text size.
+#' @param ... Further graphical parameters passed to \code{covcor_heat()}.
+#' @author Johan Aparicio [aut]
+#' @method plot metAgri
+#' @return A ggplot object.
+#' @importFrom ggpubr ggarrange
+#' @export
+#' @examples
+#' \dontrun{
+#' library(agridat)
+#' library(agriutilities)
+#' data(besag.met)
+#' dat <- besag.met
+#' results <- check_design_met(
+#'   data = dat,
+#'   genotype = "gen",
+#'   trial = "county",
+#'   traits = c("yield"),
+#'   rep = "rep",
+#'   block = "block",
+#'   col = "col",
+#'   row = "row"
+#' )
+#' out <- single_trial_analysis(results, progress = FALSE)
+#' met_results <- met_analysis(out, progress = FALSE)
+#' print(met_results)
+#' plot(met_results, type = "correlation")
+#' plot(met_results, type = "covariance")
+#' }
+plot.metAgri <- function(x,
+                         type = c("correlation", "covariance", "multi_traits"),
+                         filter_traits = NULL,
+                         text_size = 4, ...) {
+  type <- match.arg(type)
+
+  traits <- x$overall_BLUPs %>%
+    {
+      if (!is.null(filter_traits)) {
+        filter(.data = ., trait %in% filter_traits)
+      } else {
+        .
+      }
+    } %>%
+    pull(trait) %>%
+    unique()
+
+  if (type %in% c("correlation", "covariance")) {
+    plot_list <- list()
+    for (i in traits) {
+      if (type == "correlation") {
+        mat <- x$VCOV[[i]]$CORR
+      } else {
+        mat <- x$VCOV[[i]]$VCOV
+      }
+      vcov <- x$VCOV[[i]]$vc_model
+      plot_list[[i]] <- covcor_heat(
+        matrix = mat,
+        corr = ifelse(test = type == "correlation", yes = TRUE, no = FALSE),
+        size = text_size,
+        ...
+      ) +
+        ggtitle(label = paste0(i, " ('", vcov, "')"))
+    }
+    out <- ggarrange(
+      plotlist = plot_list,
+      common.legend = TRUE,
+      legend = "none"
+    )
+  }
+
+  if (type %in% "multi_traits") {
+    if (length(traits) <= 1) {
+      stop("Plot only available when there is more than one trait.")
+    }
+    tmp <- x$overall_BLUPs %>%
+      filter(trait %in% traits) %>%
+      select(genotype, trait, predicted.value) %>%
+      spread(trait, predicted.value) %>%
+      select(-genotype)
+    h2 <- x$heritability %>%
+      filter(trait %in% traits) %>%
+      droplevels() %>%
+      pull(h2, name = trait) %>%
+      round(., 3)
+    out <- gg_cor(
+      data = tmp,
+      colours = c("#db4437", "white", "#4285f4"),
+      Diag = h2,
+      label_size = text_size
+    ) +
+      ggtitle("Correlation")
+  }
+  return(out)
+}

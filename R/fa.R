@@ -16,6 +16,8 @@
 #'  (\code{TRUE} by default, correlation matrix)
 #' @param size A numeric value to define the letter size.
 #' @param digits A numeric integer to define the number of digits to plot.
+#' @param legend the position of legends ("none", "left", "right", "bottom",
+#' "top", or two-element numeric vector)
 #'
 #' @return A ggplot object showing the upper triangular elements of the matrix.
 #' @export
@@ -25,8 +27,12 @@
 #' data(iris)
 #' M <- cor(iris[, -5])
 #' covcor_heat(matrix = M, corr = TRUE)
-covcor_heat <- function(matrix, corr = TRUE, size = 4, digits = 3) {
-  matrix <- round(x = matrix, digits = 3)
+covcor_heat <- function(matrix,
+                        corr = TRUE,
+                        size = 4,
+                        digits = 3,
+                        legend = c(0.6, 0.7)) {
+  matrix <- round(x = matrix, digits = digits)
 
   # Get upper triangle of the correlation matrix
   get_upper_tri <- function(cormat) {
@@ -43,8 +49,18 @@ covcor_heat <- function(matrix, corr = TRUE, size = 4, digits = 3) {
   if (corr) {
     matrix <- reorder_cormat(matrix)
   }
-  upper_tri <- get_upper_tri(matrix)
-  melted_cormat <- reshape2::melt(upper_tri, na.rm = TRUE)
+  upper_tri <- as.data.frame(get_upper_tri(matrix))
+  col_names <- colnames(upper_tri)
+  upper_tri[, "col"] <- factor(x = col_names, levels = col_names)
+  melted_cormat <- tidyr::gather(
+    data = upper_tri,
+    key = "row",
+    value = "value",
+    -col,
+    na.rm = TRUE,
+    factor_key = TRUE
+  )
+  colnames(melted_cormat) <- c("Var1", "Var2", "value")
 
   u <- -1
   m <- 0
@@ -105,7 +121,7 @@ covcor_heat <- function(matrix, corr = TRUE, size = 4, digits = 3) {
       panel.background = ggplot2::element_blank(),
       axis.ticks = ggplot2::element_blank(),
       legend.justification = c(1, 0),
-      legend.position = c(0.6, 0.7),
+      legend.position = legend,
       legend.direction = "horizontal"
     ) +
     ggplot2::guides(
