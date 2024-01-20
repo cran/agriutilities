@@ -1,7 +1,7 @@
 Package: agriutilities
 Type: Package
 Title: Utilities for Data Analysis in Agriculture
-Version: 1.1.0
+Version: 1.2.0
 Authors@R: 
     c(person(given = "Johan",
              family = "Aparicio",
@@ -37,10 +37,10 @@ ByteCompile: TRUE
 Suggests: knitr, lattice, cluster, rmarkdown, agridat
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2023-03-18 15:59:27 UTC; johan
+Packaged: 2024-01-20 01:02:11 UTC; johan
 Author: Johan Aparicio [aut, cre],
   Alexia Bornhorst [aut],
   The Alliance of Bioversity International and CIAT [cph]
 Maintainer: Johan Aparicio <johanstevenapa@gmail.com>
 Repository: CRAN
-Date/Publication: 2023-03-19 08:50:16 UTC
+Date/Publication: 2024-01-20 14:52:48 UTC
