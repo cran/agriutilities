@@ -348,19 +348,18 @@ trials. This works as a quality check or quality control before we fit
 any model.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(agriutilities)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(agridat)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;agridat&#39; was built under R version 4.4.2</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">data</span>(besag.met)</span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>dat <span class="ot">&lt;-</span> besag.met</span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">check_design_met</span>(</span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="at">genotype =</span> <span class="st">&quot;gen&quot;</span>,</span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  <span class="at">trial =</span> <span class="st">&quot;county&quot;</span>,</span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  <span class="at">traits =</span> <span class="st">&quot;yield&quot;</span>,</span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="at">rep =</span> <span class="st">&quot;rep&quot;</span>,</span>
-<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="at">block =</span> <span class="st">&quot;block&quot;</span>,</span>
-<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="at">col =</span> <span class="st">&quot;col&quot;</span>,</span>
-<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  <span class="at">row =</span> <span class="st">&quot;row&quot;</span></span>
-<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>)</span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">data</span>(besag.met)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>dat <span class="ot">&lt;-</span> besag.met</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">check_design_met</span>(</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="at">genotype =</span> <span class="st">&quot;gen&quot;</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="at">trial =</span> <span class="st">&quot;county&quot;</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  <span class="at">traits =</span> <span class="st">&quot;yield&quot;</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  <span class="at">rep =</span> <span class="st">&quot;rep&quot;</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="at">block =</span> <span class="st">&quot;block&quot;</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="at">col =</span> <span class="st">&quot;col&quot;</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="at">row =</span> <span class="st">&quot;row&quot;</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>)</span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">print</span>(results)</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; ---------------------------------------------------------------------</span></span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; Summary Traits by Trial:</span></span>
@@ -461,7 +460,7 @@ any model.</p>
 <code>met_analysis()</code> to fit multi-environmental trial models.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>met_results <span class="ot">&lt;-</span> <span class="fu">met_analysis</span>(obj)</span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">print</span>(met_results)</span></code></pre></div>
-<pre><code>#&gt; Online License checked out Fri Jan 17 13:48:39 2025
+<pre><code>#&gt; Online License checked out Thu Oct 16 21:41:16 2025
 #&gt; Fitting MET model for yield.
 #&gt; ---------------------------------------------------------------------
 #&gt; Trial Effects (BLUEs):
