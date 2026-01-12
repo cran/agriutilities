@@ -1,4 +1,4 @@
-e7f18273aa79c010bb039ffba524d352 *DESCRIPTION
+45c7b6ffb5ed08eb4df431ea687d3cf5 *DESCRIPTION
 552762980aab89de7d6e9102683e9904 *LICENSE
 934fde8448ecfa8ae36cd156bb7d0a97 *NAMESPACE
 b866b989a95d20a80801e16631f7399b *R/SpATS.R
@@ -10,7 +10,7 @@ b866b989a95d20a80801e16631f7399b *R/SpATS.R
 2eded744553ee95b64dd46818169a045 *R/fitMET.R
 1825093d52e7e938a1c1b7ed1ef2a243 *R/fitSingle.R
 0db8d5907513a0948ca3d2ad1e1b6153 *R/ggCor.R
-a64e9eeaf4c2cc27e4e67e5521b90af2 *R/global.R
+d1c6aff056f682704eedfe44bc7c4d91 *R/global.R
 cb669f824c3542b19c75d4c06bbbe3d4 *R/heritability.R
 6513e5d2e221d7ff69da32cf9a75bbfa *R/icREML.R
 a883097116df8020cf50c44d0cc4fca9 *R/lme4.R
@@ -21,10 +21,10 @@ c07cf697afed035d489a64a7870e5f3e *README.md
 d6d5138e2d81de3fdd1b645fcfc06d75 *build/vignette.rds
 7453ffe988c09714325971376f3eaa77 *inst/doc/how-to-start.R
 4527639c898d99abe9cfd68631013b01 *inst/doc/how-to-start.Rmd
-2b8835dedde94bebb3f118802685beae *inst/doc/how-to-start.html
+42a02855b6655d8740d5c8baf8a485b0 *inst/doc/how-to-start.html
 92f88891629098ff7d649dc0bdf4ee33 *inst/doc/repeated_measurements.R
 194df03b9cc0463eead9d84a13bfb994 *inst/doc/repeated_measurements.Rmd
-9f6f219b9a56531ba80be319f233494e *inst/doc/repeated_measurements.html
+40547ed4cc8f147f60bd41f80e3b700d *inst/doc/repeated_measurements.html
 31b8c4b1f95681a4bc911a01d4df7c26 *man/check_connectivity.Rd
 2bd3e92beb4f0419dab11829fbacdc3b *man/check_design_met.Rd
 376fb023a708b338808bc6acf8ac11b3 *man/covcor_heat.Rd
